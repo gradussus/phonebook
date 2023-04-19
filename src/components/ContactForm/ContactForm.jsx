@@ -1,9 +1,30 @@
 import { useState } from 'react';
-import { AddContactForm } from './ContactForm.styled';
+import { AddContactForm, Button, Input } from './ContactForm.styled';
+import { getContacts } from 'redux/contacts/contactsSelectors';
+import { addContact } from 'redux/contacts/contactsOperations';
+import { useDispatch, useSelector } from 'react-redux';
 
-export const ContactForm = ({ addContact }) => {
+export const ContactForm = () => {
   const [contactName, setContactName] = useState('');
   const [contactNumber, setContactNumber] = useState('');
+
+  const dispatch = useDispatch();
+  const { contacts } = useSelector(getContacts);
+
+  const newContact = (name, number) => {
+    const includeName = contacts.find(
+      e => e.name.toLowerCase() === name.toLowerCase()
+    );
+    const includeNumber = contacts.find(e => e.number === number);
+
+    if (includeName) {
+      return alert(`${name} is already in contacts`);
+    }
+    if (includeNumber) {
+      return alert(`${number} is already in contacts`);
+    }
+    dispatch(addContact({ name: name, number: number }));
+  };
 
   const handleChange = e => {
     const event = e.target;
@@ -17,7 +38,7 @@ export const ContactForm = ({ addContact }) => {
 
   const onSubmit = e => {
     e.preventDefault();
-    addContact(contactName, contactNumber);
+    newContact(contactName, contactNumber);
     setContactName('');
     setContactNumber('');
   };
@@ -26,7 +47,7 @@ export const ContactForm = ({ addContact }) => {
     <AddContactForm onSubmit={onSubmit} autoComplete="off">
       <label>
         <p>Name</p>
-        <input
+        <Input
           type="text"
           name="name"
           pattern="^[a-zA-Zа-яА-Я]+(([' -][a-zA-Zа-яА-Я ])?[a-zA-Zа-яА-Я]*)*$"
@@ -37,7 +58,7 @@ export const ContactForm = ({ addContact }) => {
       </label>
       <label>
         <p>Number</p>
-        <input
+        <Input
           type="tel"
           name="number"
           pattern="\+?\d{1,4}?[-.\s]?\(?\d{1,3}?\)?[-.\s]?\d{1,4}[-.\s]?\d{1,4}[-.\s]?\d{1,9}"
@@ -47,7 +68,7 @@ export const ContactForm = ({ addContact }) => {
         />
       </label>
       <br />
-      <button type="submit">Add contact</button>
+      <Button type="submit">Add contact</Button>
     </AddContactForm>
   );
 };
